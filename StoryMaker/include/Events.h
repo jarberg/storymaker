@@ -13,6 +13,19 @@ public:
     virtual ~Event() = default;
 };  
 
+class LocationEnteredEvent : public Event {
+public:
+    std::string locationName;
+    LocationEnteredEvent(std::string name) : locationName(name){};
+    
+};
+
+class LocationExitEvent : public Event {
+public:
+    std::string locationName;
+    LocationExitEvent(std::string name) : locationName(name) {};
+};
+
 class advanceTimeEvent : public Event {
 public:
     int time;

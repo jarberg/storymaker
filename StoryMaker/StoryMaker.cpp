@@ -43,6 +43,13 @@ void parseInput(const std::string& input, std::vector<std::string>& commands) {
 			std::cout << "Please specify what to look at\n";
 		}
 	}
+	else if (command == "help") {
+		commands = { command, argument };
+	}
+	else if (command == "exit") {
+		commands = { command , argument };
+
+	}
 	else {
 		std::cout << "Unknown command: " << command << std::endl;
 	}
@@ -53,14 +60,25 @@ void handle_input(std::string command, std::vector<std::string> arguments) {
 		std::string location = arguments[0];
 		for (auto loc: currentLocation->getConnectedLocations()) {
 			if (loc->getName() == location) {
+				currentLocation->exit();
 				currentLocation = loc;
+				currentLocation->enter();
 				break;
 			}
 		}
-		std::cout << "Going to " << location << std::endl;
 	}
 	else if (command == "look") {
 		currentLocation->printConnectedLocations();
+	}
+	else if (command == "help") {
+		std::cout << "Available commands:\n";
+		std::cout << "goto <location> - Go to a specified location\n";
+		std::cout << "look - Look around the current location\n";
+		std::cout << "help - Show this help message\n";
+	}
+	else if (command == "exit") {
+		std::cout << "Exiting the game. Goodbye!\n";
+		exit(0);
 	}
 	else {
 		std::cout << "Unknown command: " << command << std::endl;
@@ -76,7 +94,11 @@ void printFullWidthLine(char ch, int width) {
 
 int bla(std::vector<std::string> commands, std::vector<std::string>& arguments) {
 	// Only extract arguments if there is more than one command
-	if (commands.size() > 1) {
+	
+	if (commands.size() == 1) {
+		return 0;
+	}
+	else if (commands.size() > 1) {
 		arguments = std::vector<std::string>(commands.begin() + 1, commands.end());
 	}
 	else {
@@ -97,18 +119,15 @@ int bla(std::vector<std::string> commands, std::vector<std::string>& arguments) 
 // Function to watch console resize events
 void renderGUI(std::pair<int, int> size) {
 	std::string title = "StoryMaker";
-
+	
 	int actualW = (size.first - title.length()) / 2;
 	int actualH = size.second / 4 * 3;
 	
 	int renderwindowH = size.second - (1 + actualH);
 	
-	
-	
 	//std::cout << "\n[Resize Detected] New width: " << newWidth << std::endl;
 	system("cls");
 
-	
 	printFullWidthLine('=', actualW);
 	std::cout << title;
 	printFullWidthLine('=', actualW);
@@ -155,19 +174,17 @@ int main()
 	std::vector<std::string> commands;
 
 	std::vector<std::string> arguments;
+
+	renderGUI(getConsoleSize());
+	test.showTime();
+	currentLocation->printConnectedLocations();
     while (true) {
-
-		renderGUI(getConsoleSize());
-
-		currentLocation->printConnectedLocations();
-		std::this_thread::sleep_for(std::chrono::seconds(1));
+		
+		//std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::getline(std::cin, input);
 		parseInput(input, commands);
-		// Only extract arguments if there is more than one command
 		if (bla(commands, arguments) == 0) {
 			handle_input(commands.front(), arguments);
-			test.showTime();
-			test.advancetime();
 		}
     }
 	keepRunning = false;

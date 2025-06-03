@@ -1,13 +1,21 @@
 #pragma once
 #include <string>
 #include <vector>
+
+#include <Events.h>
+
 class Location {
 
 	std::string name;
 	std::vector<std::shared_ptr<Location>> connectedLocations;
 
+	EventDispatcher locationEnteredEvent;
+	EventDispatcher locationExitEvent_var;
+
 public:
-	Location() {};
+	Location() {
+
+	};
 	~Location() {};
 
 	Location(std::string name) : name(name) {};
@@ -18,6 +26,16 @@ public:
 	}
 	std::vector<std::shared_ptr<Location>> getConnectedLocations() {
 		return this->connectedLocations;
+	}
+	void exit() {
+		this->locationExitEvent_var.Dispatch(std::make_shared<LocationExitEvent>(this->getName()));
+		std::cout << "You have exited " << this->name << std::endl;
+	}
+
+	void enter() {
+		this->locationEnteredEvent.Dispatch(std::make_shared<LocationEnteredEvent>(this->getName()));
+
+		std::cout << "You have entered " << this->name << std::endl;
 	}
 
 	void addConnectedLocation(std::shared_ptr<Location> location) {
